@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wine Dataset Chatbot</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+        .chatbox-container {
+            background-color: #fff;
+            border-radius: 8px;
+            width: 600px; /* Increase the width of the chatbox */
+            height: 80vh; /* Adjust height to fit screen */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            max-height: 800px; /* Set a maximum height */
+        }
+        .chatbox {
+            width: 100%;
+            height: 70%;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            overflow-y: auto;
+            margin-bottom: 10px;
+            font-size: 16px; /* Increase font size for readability */
+            line-height: 1.5; /* Space between lines */
+        }
+        .user-input {
+            width: 100%;
+            padding: 18px; /* Increase padding for more space */
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+            margin-top: 10px;
+            height: 50px; /* Make input box taller */
+        }
+        .button {
+            padding: 12px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            font-size: 16px;
+        }
+        .button:hover {
+            background-color: #45a049;
+        }
+        .message {
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .bot-message {
+            background-color: #e0f7fa;
+            align-self: flex-start;
+        }
+        .user-message {
+            background-color: #c8e6c9;
+            align-self: flex-end;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+            font-size: 16px;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        /* Adjustments for responsive design */
+        @media screen and (max-width: 768px) {
+            .chatbox-container {
+                width: 90%;
+                height: 75vh;
+            }
+            .button {
+                width: 100%;
+                padding: 15px;
+                font-size: 18px;
+            }
+            .user-input {
+                width: 100%;
+                height: 60px;
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="chatbox-container">
+        <div class="chatbox" id="chatbox">
+            <div class="message bot-message"><strong>Bot:</strong> Hello! I am here to assist you with the Wine dataset. Ask me about features, scaling, encoding, or general ML concepts.</div>
+        </div>
+        <input type="text" id="user_input" class="user-input" placeholder="Ask me something...">
+        <button class="button" onclick="sendMessage()">Send</button>
+    </div>
+
+    <script>
+        function sendMessage() {
+            var user_input = document.getElementById('user_input').value;
+            var chatbox = document.getElementById('chatbox');
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", "/get?msg=" + user_input, true);
+            xhr.onload = function() {
+                var response = JSON.parse(xhr.responseText);
+                chatbox.innerHTML += "<div class='message user-message'><strong>You:</strong> " + user_input + "</div>";
+                
+                if (response.response.includes('<img src="data:image/png;base64,')) {
+                    chatbox.innerHTML += "<div class='message bot-message'><strong>Bot:</strong> Here's the graph you requested:<br>" + response.response + "</div>";
+                } else if (response.response.includes('<table')) {
+                    chatbox.innerHTML += "<div class='message bot-message'><strong>Bot:</strong> Here's the table you requested:<br>" + response.response + "</div>";
+                } else {
+                    chatbox.innerHTML += "<div class='message bot-message'><strong>Bot:</strong> " + response.response + "</div>";
+                }
+                
+                chatbox.scrollTop = chatbox.scrollHeight;
+                document.getElementById('user_input').value = '';
+            };
+            xhr.send();
+        }
+    </script>
+
+</body>
+</html>
